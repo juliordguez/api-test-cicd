@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.12'
-            args '-u'
-        }
-    }
+    agent any    // <--- ya no usamos docker aquí
 
     stages {
         stage('Checkout') {
@@ -16,10 +11,11 @@ pipeline {
         stage('Instalar dependencias') {
             steps {
                 sh '''
+                    python3 --version || echo "python3 no encontrado"
+                    python3 -m venv venv
+                    . venv/bin/activate
                     pip install --upgrade pip
-                    if [ -f "requirements.txt" ]; then
-                        pip install -r requirements.txt
-                    fi
+                    pip install -r requirements.txt
                 '''
             }
         }
@@ -27,11 +23,8 @@ pipeline {
         stage('Tests') {
             steps {
                 sh '''
-                    if [ -d "tests" ]; then
-                        pytest
-                    else
-                        echo "No hay carpeta tests, saltando tests"
-                    fi
+                    . venv/bin/activate
+                    pytest
                 '''
             }
         }
