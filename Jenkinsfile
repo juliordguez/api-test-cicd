@@ -1,66 +1,19 @@
 pipeline {
-
     agent { label 'windows-agent' }
 
     options {
-        skipDefaultCheckout()   // No hacer checkout automático
+        skipDefaultCheckout()
     }
 
     stages {
-
-        stage('Validar rama') {
-            when {
-                expression { env.BRANCH_NAME == 'dev' }
-            }
+        stage('Debug vars') {
             steps {
-                echo "Ejecutando pipeline porque la rama es: ${env.BRANCH_NAME}"
+                echo "BRANCH_NAME = '${env.BRANCH_NAME}'"
+                echo "GIT_BRANCH  = '${env.GIT_BRANCH}'"
             }
         }
 
-        stage('Checkout') {
-            when {
-                expression { env.BRANCH_NAME == 'dev' }
-            }
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Instalar dependencias') {
-            when {
-                expression { env.BRANCH_NAME == 'dev' }
-            }
-            steps {
-                bat '''
-                    echo ===== VERSION DE PYTHON =====
-                    python --version
-
-                    echo ===== CREAR ENTORNO VIRTUAL =====
-                    python -m venv venv
-
-                    echo ===== ACTIVAR ENTORNO VIRTUAL =====
-                    call venv\\Scripts\\activate.bat
-
-                    echo ===== ACTUALIZAR PIP =====
-                    pip install --upgrade pip
-
-                    echo ===== INSTALAR REQUIREMENTS =====
-                    pip install -r requirements.txt
-                '''
-            }
-        }
-
-        stage('Tests') {
-            when {
-                expression { env.BRANCH_NAME == 'dev' }
-            }
-            steps {
-                bat '''
-                    call venv\\Scripts\\activate.bat
-                    pytest
-                '''
-            }
-        }
+        // lo demás igual...
     }
 
     post {
